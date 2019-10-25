@@ -19,69 +19,61 @@ D_count = 0
 data = csv.reader(open(train_file, newline=''), delimiter=',')
 for row in data:
     votes = []
-    #Party affiliation ignored
     for i in range (0,42):
         votes.append(row[i])
     members.append(votes)
 
-#Fill cluster list with single members to start
+# Fill cluster list with single members
 for x in range(0,len(members)):
     cluster = [x]
     clusters.append(cluster)
 
 
-#Compare each cluster and merge closest pair
+# Compare each cluster and merge closest pair
 while(len(clusters)>cluster_count):
-    #print(len(clusters))
-    min_dist = 2  # Will always be larger than the biggest distance (1)
+    min_dist = 2  
     merge = [0] * 2
     for x in range (0,len(clusters)-1):
         for y in range (x+1,len(clusters)):
             x_count = len(clusters[x])
             y_count = len(clusters[y])
             links = Decimal(x_count * y_count)
-            #print("links: %d" % links)
             total_dist = Decimal(0)
 
-            #Compare each member in cluster pair, calculate average distance
+            # Compare each member in cluster pair, calculate average distance
             for x_cluster in range (0,x_count):
                 for y_cluster in range(0,y_count):
                     x_member = members[clusters[x][x_cluster]]
                     y_member = members[clusters[y][y_cluster]]
                     matches = 0
 
-                    #Count matches to find the intersection
+                    # Count matches to find the intersection
                     for c in range (0,42):
                         if(x_member[c]==y_member[c]):
                             matches+=1
                     distance = Decimal((2*42 - 2*matches)/(2*42-matches)) #The Jaccard distance (1-Jaccard index)
-                    #print("%d and %d matches: %d" % (x, y, matches))
                     total_dist += distance
-                    #print(total_dist)
             avg_dist = total_dist/links
-            #print(avg_dist)
-            #print(min_dist)
-            #Save new min dist and the closest cluster pair
+            
+            # Save new min dist and the closest cluster pair
             if(avg_dist < min_dist):
                 min_dist = avg_dist
                 merge[0] = x
                 merge[1] = y
 
-    #Pop the two closest clusters, merge and append to clusters list
+    # Pop the two closest clusters, merge and append to clusters list
     x_merge = clusters.pop(merge[0])
     y_merge = clusters.pop(merge[1]-1)
     merged = y_merge + x_merge
     clusters.append(merged)
 
-#print("cluster count reached")
-
-#Sort the clusters then the cluster list
+# Sort the clusters then the cluster list
 for cl in clusters:
     cl.sort()
 
 clusters.sort()
 
-#Print the clusters
+# Print the clusters
 for clu in clusters:
     line = ', '.join(map(str,clu))
     print(line)
